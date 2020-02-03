@@ -4,7 +4,15 @@ version = "0.1.0"
 authors = ["Devin Gunay <devingunay@gmail.com>"]
 edition = "2018"
 
+# [lib]
+# name = "dicelib"
+# path = "src/lib.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 structopt = "0.3"
+rand =  { version = "0.7.3", features = ["small_rng"] }
+regex = "1"
+lazy_static = "1.4.0"
+evalexpr = "5.0.5"

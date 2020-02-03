@@ -1,5 +1,6 @@
 extern crate structopt;
 use structopt::StructOpt;
+use rpg_dice_rust::lib::solve_dice_expression;
 
 #[derive(StructOpt)]
 struct Cli {
@@ -9,11 +10,16 @@ struct Cli {
 
     // An optional random seed for repeatable results.
     #[structopt(short, long)]
-    random_seed: Option<i32>,
+    random_seed: Option<u64>,
 }
 
 fn main() {
     let args = Cli::from_args();
 
+    let expression = args.expression;
     
+    // Mash the Strings together into one
+    let combined_expression = expression.join("");
+
+    println!("{}", solve_dice_expression(combined_expression, args.random_seed));
 }
