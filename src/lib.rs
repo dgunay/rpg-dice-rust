@@ -1,70 +1,40 @@
 #[macro_use]
 extern crate lazy_static;
 
+// #[macro_use] extern crate lalrpop_util;
+// lalrpop_mod!(pub parser); // synthesized by LALRPOP
+
 pub mod lib {
   use rand::{rngs::SmallRng, Rng, SeedableRng};
-  use regex::Regex;
-  use std::str::FromStr;
+  use regex::{Regex, Captures};
   use evalexpr::eval;
 
-  pub struct DiceExpression {}
-  impl DiceExpression {
-    pub fn new(tokens: Vec<String>) -> DiceExpression {
-      return DiceExpression {};
-    }
-  }
-
-  pub enum MathToken {
-    Plus,
-    Minus,
-    Multiply,
-    Divide,
-    ParenOpen,
-    ParenClose,
-  }
-
-  impl FromStr for MathToken {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<MathToken, ()> {
-      match s {
-        "+" => Ok(MathToken::Plus),
-        "-" => Ok(MathToken::Minus),
-        "*" => Ok(MathToken::Multiply),
-        "/" => Ok(MathToken::Divide),
-        "(" => Ok(MathToken::ParenOpen),
-        ")" => Ok(MathToken::ParenClose),
-        _ => Err(()),
-      }
-    }
-  }
-
   // TODO: try generating docs
-  pub struct DiceToken {
+  pub struct Dice {
     rolls: u32,
     sides: u32,
   }
-  impl DiceToken {
-    pub fn new(rolls: u32, sides: u32) -> DiceToken {
-      return DiceToken {
+  impl Dice {
+    pub fn new(rolls: u32, sides: u32) -> Dice {
+      return Dice {
         rolls: rolls,
         sides: sides,
       };
     }
 
-    pub fn from_string(string: String) -> DiceToken {
+    pub fn from_string(string: &String) -> Dice {
       // parse into rolls and sides, with regex validation
       lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
       }
 
-      let captures = PATTERN.captures(&string).unwrap();
+      let captures = PATTERN.captures(string).unwrap();
 
       // Parse the captures at u32s.
-      let rolls = captures.get(0).unwrap().as_str().parse::<u32>().unwrap();
-      let sides = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
+      let rolls = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
+      let sides = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
 
-      return DiceToken::new(rolls, sides);
+      return Dice::new(rolls, sides);
     }
 
     pub fn roll(&self, random_seed: Option<u64>) -> u32 {
@@ -83,13 +53,18 @@ pub mod lib {
     }
   }
 
+  // TODO: errors need to bubble up properly and not panic
   pub fn solve_dice_expression(expression: String, random_seed: Option<u64>) -> i64 {
-    // Parse the expression into tokens
-
-    // Roll all of the dice tokens in-place
+    let pattern = Regex::new(r"(\d+)d(\d+)").unwrap();
+    
+    // For every match on the Dice expression regex, roll it in-place.
+    let rolled_expression = pattern.replace(&expression, |caps: &Captures| {
+      let dice = Dice::from_string(&caps.get(0).unwrap().as_str().to_string());
+      return format!("{}", dice.roll(random_seed));
+    });
 
     // Calculate the result
-    let result = match eval(&expression).unwrap() {
+    let result = match eval(&rolled_expression).unwrap() {
       evalexpr::Value::Int(inner) => inner,
       _ => panic!("Not an int, something went wrong")
     };
@@ -99,11 +74,26 @@ pub mod lib {
 
   #[cfg(test)]
   mod tests {
-    use crate::lib::solve_dice_expression;
+    use crate::lib::*;
+
+    const TEST_SEED: u64 = 42;
 
     #[test]
     fn solve_dice_expression_can_do_basic_math() {
       assert_eq!(4, solve_dice_expression(String::from("2 + 2"), None));
     }
+
+    #[test]
+    fn seeded_rolls_are_deterministic() {
+      let seed = Some(TEST_SEED);
+      let rolls = ["2d6", "1d20", "2d8", "9d4", "1d12"];
+      for s in &rolls {
+        let a = Dice::from_string(&s.to_string());
+        let b = Dice::from_string(&s.to_string());
+        assert_eq!(a.roll(seed), b.roll(seed));
+      }
+    }
+
+
   }
 }
