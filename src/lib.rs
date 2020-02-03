@@ -30,7 +30,7 @@ pub mod lib {
 
       let captures = PATTERN.captures(string).unwrap();
 
-      // Parse the captures at u32s.
+      // Parse the captures as u32s.
       let rolls = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
       let sides = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
 
