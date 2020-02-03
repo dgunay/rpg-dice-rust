@@ -108,5 +108,15 @@ pub mod lib {
         assert_eq!(a.roll(seed), b.roll(seed));
       }
     }
+
+    #[test]
+    fn fuzz_artifacts_dont_cause_crashes_anymore() {
+      let inputs = ["6d0%"];
+      for s in &inputs {
+        solve_dice_expression(s.to_string(), None).unwrap();
+      }
+
+      assert!(true);
+    }
   }
 }
