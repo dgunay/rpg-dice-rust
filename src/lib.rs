@@ -5,9 +5,10 @@ extern crate lazy_static;
 // lalrpop_mod!(pub parser); // synthesized by LALRPOP
 
 pub mod lib {
-  use rand::{rngs::SmallRng, Rng, SeedableRng};
-  use regex::{Regex, Captures};
   use evalexpr::eval;
+  use rand::{rngs::SmallRng, Rng, SeedableRng};
+  use regex::{Captures, Regex};
+  use std::error::Error;
 
   // TODO: try generating docs
   pub struct Dice {
@@ -22,7 +23,7 @@ pub mod lib {
       };
     }
 
-    pub fn from_string(string: &String) -> Dice {
+    pub fn from_string(string: &String) -> Result<Dice, Box<dyn Error>> {
       // parse into rolls and sides, with regex validation
       lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
@@ -31,10 +32,20 @@ pub mod lib {
       let captures = PATTERN.captures(string).unwrap();
 
       // Parse the captures as u32s.
-      let rolls = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
-      let sides = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
+      let rolls = captures
+        .get(1)
+        .expect(format!("Failed to match number of rolls for {}", string).as_str())
+        .as_str()
+        .parse::<u32>()
+        .unwrap();
+      let sides = captures
+        .get(2)
+        .expect(format!("Failed to match number of sides for {}", string).as_str())
+        .as_str()
+        .parse::<u32>()
+        .unwrap();
 
-      return Dice::new(rolls, sides);
+      return Ok(Dice::new(rolls, sides));
     }
 
     pub fn roll(&self, random_seed: Option<u64>) -> u32 {
@@ -49,27 +60,28 @@ pub mod lib {
       for _ in 0..self.rolls {
         result += rng.gen_range(1, self.sides);
       }
+
       return result;
     }
   }
 
   // TODO: errors need to bubble up properly and not panic
-  pub fn solve_dice_expression(expression: String, random_seed: Option<u64>) -> i64 {
-    let pattern = Regex::new(r"(\d+)d(\d+)").unwrap();
-    
+  pub fn solve_dice_expression(
+    expression: String,
+    random_seed: Option<u64>,
+  ) -> Result<i64, Box<dyn Error>> {
+    let pattern = Regex::new(r"(\d+)d(\d+)").expect("Problem compiling regex");
+
     // For every match on the Dice expression regex, roll it in-place.
     let rolled_expression = pattern.replace(&expression, |caps: &Captures| {
-      let dice = Dice::from_string(&caps.get(0).unwrap().as_str().to_string());
+      let dice = Dice::from_string(&caps.get(0).unwrap().as_str().to_string()).unwrap();
       return format!("{}", dice.roll(random_seed));
     });
 
     // Calculate the result
-    let result = match eval(&rolled_expression).unwrap() {
-      evalexpr::Value::Int(inner) => inner,
-      _ => panic!("Not an int, something went wrong")
-    };
+    let result = eval(&rolled_expression)?.as_int()?;
 
-    return result;
+    return Ok(result);
   }
 
   #[cfg(test)]
@@ -80,7 +92,10 @@ pub mod lib {
 
     #[test]
     fn solve_dice_expression_can_do_basic_math() {
-      assert_eq!(4, solve_dice_expression(String::from("2 + 2"), None));
+      assert_eq!(
+        4,
+        solve_dice_expression(String::from("2 + 2"), None).unwrap()
+      );
     }
 
     #[test]
@@ -88,12 +103,10 @@ pub mod lib {
       let seed = Some(TEST_SEED);
       let rolls = ["2d6", "1d20", "2d8", "9d4", "1d12"];
       for s in &rolls {
-        let a = Dice::from_string(&s.to_string());
-        let b = Dice::from_string(&s.to_string());
+        let a = Dice::from_string(&s.to_string()).unwrap();
+        let b = Dice::from_string(&s.to_string()).unwrap();
         assert_eq!(a.roll(seed), b.roll(seed));
       }
     }
-
-
   }
 }
