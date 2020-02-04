@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-// #[macro_use] extern crate lalrpop_util;
-// lalrpop_mod!(pub parser); // synthesized by LALRPOP
-
 pub mod lib {
   use evalexpr::eval;
   use rand::{rngs::SmallRng, Rng, SeedableRng};
@@ -15,15 +12,21 @@ pub mod lib {
     rolls: u32,
     sides: u32,
   }
+
   impl Dice {
-    pub fn new(rolls: u32, sides: u32) -> Dice {
+    pub fn new(
+      rolls: u32, sides: u32
+    ) -> Dice {
+
       return Dice {
         rolls: rolls,
         sides: sides,
       };
     }
 
-    pub fn from_string(string: &String) -> Result<Dice, Box<dyn Error>> {
+    pub fn from_string(
+      string: &String
+    ) -> Result<Dice, Box<dyn Error>> {
       // parse into rolls and sides, with regex validation
       lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
@@ -46,23 +49,17 @@ pub mod lib {
         .unwrap();
 
       return Ok(Dice::new(rolls, sides));
+    }    
+  }
+
+  fn roll_dice(rng: &mut SmallRng, dice: &Dice) -> u32 {
+    let mut result = 0;
+
+    for _ in 0..dice.rolls {
+      result += rng.gen_range(1, dice.sides);
     }
 
-    pub fn roll(&self, random_seed: Option<u64>) -> u32 {
-      // TODO: may be better to move this to a static area instead of making it
-      // for every roll
-      let mut rng = match random_seed {
-        Some(inner) => SmallRng::seed_from_u64(inner),
-        None => SmallRng::from_entropy(),
-      };
-
-      let mut result = 0;
-      for _ in 0..self.rolls {
-        result += rng.gen_range(1, self.sides);
-      }
-
-      return result;
-    }
+    return result;
   }
 
   // TODO: errors need to bubble up properly and not panic
@@ -70,12 +67,20 @@ pub mod lib {
     expression: String,
     random_seed: Option<u64>,
   ) -> Result<i64, Box<dyn Error>> {
-    let pattern = Regex::new(r"(\d+)d(\d+)").expect("Problem compiling regex");
+    lazy_static! {
+      static ref PATTERN: Regex = Regex::new(r"(\d+)d(\d+)").expect("Problem compiling regex");
+    }
+
+    // Initialize our RNG
+    let mut rng = match random_seed {
+      Some(inner) => SmallRng::seed_from_u64(inner),
+      None        => SmallRng::from_entropy(),
+    };
 
     // For every match on the Dice expression regex, roll it in-place.
-    let rolled_expression = pattern.replace(&expression, |caps: &Captures| {
+    let rolled_expression = PATTERN.replace(&expression, |caps: &Captures| {
       let dice = Dice::from_string(&caps.get(0).unwrap().as_str().to_string()).unwrap();
-      return format!("{}", dice.roll(random_seed));
+      return format!("{}", roll_dice(&mut rng, &dice));
     });
 
     // Calculate the result
@@ -103,9 +108,10 @@ pub mod lib {
       let seed = Some(TEST_SEED);
       let rolls = ["2d6", "1d20", "2d8", "9d4", "1d12"];
       for s in &rolls {
-        let a = Dice::from_string(&s.to_string()).unwrap();
-        let b = Dice::from_string(&s.to_string()).unwrap();
-        assert_eq!(a.roll(seed), b.roll(seed));
+        let a = solve_dice_expression(s.to_string(), seed);
+        let b = solve_dice_expression(s.to_string(), seed);
+
+        assert_eq!(a.unwrap(), b.unwrap());
       }
     }
 
