@@ -14,19 +14,14 @@ pub mod lib {
   }
 
   impl Dice {
-    pub fn new(
-      rolls: u32, sides: u32
-    ) -> Dice {
-
+    pub fn new(rolls: u32, sides: u32) -> Dice {
       return Dice {
         rolls: rolls,
         sides: sides,
       };
     }
 
-    pub fn from_string(
-      string: &String
-    ) -> Result<Dice, Box<dyn Error>> {
+    pub fn from_string(string: &String) -> Result<Dice, Box<dyn Error>> {
       // parse into rolls and sides, with regex validation
       lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
@@ -49,7 +44,7 @@ pub mod lib {
         .unwrap();
 
       return Ok(Dice::new(rolls, sides));
-    }    
+    }
   }
 
   fn roll_dice(rng: &mut SmallRng, dice: &Dice) -> u32 {
@@ -74,7 +69,7 @@ pub mod lib {
     // Initialize our RNG
     let mut rng = match random_seed {
       Some(inner) => SmallRng::seed_from_u64(inner),
-      None        => SmallRng::from_entropy(),
+      None => SmallRng::from_entropy(),
     };
 
     // For every match on the Dice expression regex, roll it in-place.
