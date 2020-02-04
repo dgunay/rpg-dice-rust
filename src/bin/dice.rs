@@ -1,5 +1,7 @@
 extern crate structopt;
-use rpg_dice_rust::lib::solve_dice_expression;
+
+use dicelib::solve_dice_expression;
+
 use structopt::StructOpt;
 
 #[derive(StructOpt)]

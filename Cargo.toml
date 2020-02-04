@@ -1,12 +1,16 @@
 [package]
-name = "rpg-dice-rust"
+name = "rpg_dice_rust"
 version = "0.1.0"
 authors = ["Devin Gunay <devingunay@gmail.com>"]
 edition = "2018"
 
-# [lib]
-# name = "dicelib"
-# path = "src/lib.rs"
+[lib]
+name = "dicelib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "dice"
+path = "src/bin/dice.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
