@@ -26,10 +26,12 @@ impl Error for OverflowError {
   }
 }
 
+// TODO: this function is the hot path for very large numbers of rolls.
 fn roll_dice(rng: &mut SmallRng, dice: &Dice) -> Result<u32, OverflowError> {
   let mut result: u32 = 0;
 
   for _ in 0..dice.rolls {
+    // TODO: benchmark this against unchecked +=
     result = match result.checked_add(rng.gen_range(1, dice.sides)) {
       Some(added) => added,
       None => return Err(OverflowError),
@@ -54,7 +56,8 @@ pub fn solve_dice_expression(
     None => SmallRng::from_entropy(),
   };
 
-  // In order to bubble up errors from Regex::replace, we use this variable.
+  // In order to bubble up errors from Regex::replace, we use this variable to
+  // capture 
   let mut error = None;
 
   // For every match on the Dice expression regex, roll it in-place.
@@ -65,6 +68,7 @@ pub fn solve_dice_expression(
         match roll_dice(&mut rng, &dice) {
           Ok(roll_result) => return Cow::Owned(format!("{}", roll_result)),
           Err(e) => {
+            // This is usually because of an OverflowError
             error = Some(e.into());
             return Cow::Borrowed("");
           }
