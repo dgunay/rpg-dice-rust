@@ -32,7 +32,7 @@ fn multiple_rolls() {
 
 #[test]
 fn fuzz_artifacts_dont_cause_crashes_anymore() {
-  let inputs = ["6d0%", "994d01$"];
+  let inputs = ["6d0%", "994d01$", "2222225d22225d||?"];
   for s in &inputs {
     assert!(solve_dice_expression(s.to_string(), None).is_err());
   }

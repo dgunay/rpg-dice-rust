@@ -3,20 +3,40 @@ extern crate lazy_static;
 use evalexpr::eval;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use regex::{Captures, Regex};
-use std::error::Error;
 use std::borrow::Cow;
+use std::error::Error;
+use std::fmt;
 
 mod dice;
 use dice::Dice;
 
-fn roll_dice(rng: &mut SmallRng, dice: &Dice) -> u32 {
-  let mut result = 0;
+#[derive(Debug, Clone)]
+struct OverflowError;
+
+impl fmt::Display for OverflowError {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "Integer overflow occurred.")
+  }
+}
+
+impl Error for OverflowError {
+  fn source(&self) -> Option<&(dyn Error + 'static)> {
+    // Generic error, underlying cause isn't tracked.
+    None
+  }
+}
+
+fn roll_dice(rng: &mut SmallRng, dice: &Dice) -> Result<u32, OverflowError> {
+  let mut result: u32 = 0;
 
   for _ in 0..dice.rolls {
-    result += rng.gen_range(1, dice.sides);
+    result = match result.checked_add(rng.gen_range(1, dice.sides)) {
+      Some(added) => added,
+      None => return Err(OverflowError),
+    }
   }
 
-  return result;
+  return Ok(result);
 }
 
 // TODO: errors need to bubble up properly and not panic
@@ -41,7 +61,15 @@ pub fn solve_dice_expression(
   let rolled_expression = PATTERN.replace_all(&expression, |caps: &Captures| {
     let diceroll_str = &caps.get(0).unwrap().as_str().to_string();
     match Dice::from_string(&diceroll_str) {
-      Ok(dice) => return Cow::Owned(format!("{}", roll_dice(&mut rng, &dice))),
+      Ok(dice) => {
+        match roll_dice(&mut rng, &dice) {
+          Ok(roll_result) => return Cow::Owned(format!("{}", roll_result)),
+          Err(e) => {
+            error = Some(e.into());
+            return Cow::Borrowed("");
+          }
+        }
+      }
       Err(e) => {
         error = Some(e);
         return Cow::Borrowed("");
