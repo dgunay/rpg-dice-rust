@@ -32,10 +32,8 @@ fn multiple_rolls() {
 
 #[test]
 fn fuzz_artifacts_dont_cause_crashes_anymore() {
-  let inputs = ["6d0%"];
+  let inputs = ["6d0%", "994d01$"];
   for s in &inputs {
-    solve_dice_expression(s.to_string(), None).unwrap();
+    assert!(solve_dice_expression(s.to_string(), None).is_err());
   }
-
-  assert!(true);
 }
