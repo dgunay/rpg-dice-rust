@@ -25,6 +25,12 @@ fn seeded_rolls_are_deterministic() {
 }
 
 #[test]
+fn multiple_rolls() {
+  let a = solve_dice_expression("1d6 + 1d6".to_string(), None).unwrap();
+  assert!(a >= 2 && a <= 12);
+}
+
+#[test]
 fn fuzz_artifacts_dont_cause_crashes_anymore() {
   let inputs = ["6d0%"];
   for s in &inputs {
