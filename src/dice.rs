@@ -16,8 +16,8 @@ pub enum DiceError {
 impl fmt::Display for DiceError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match *self {
-      DiceError::InvalidSides(sides) => write!(f, "Sides must be greater than 0 (was {})", sides),
-      DiceError::InvalidRolls(rolls) => write!(f, "Rolls must be greater than 0 (was {})", rolls),
+      DiceError::InvalidSides(sides) => write!(f, "Sides must be at least {} (was {})", Dice::MINIMUM_SIDES, sides),
+      DiceError::InvalidRolls(rolls) => write!(f, "Rolls must be at least {} (was {})", Dice::MINIMUM_ROLLS, rolls),
     }
   }
 }
@@ -30,12 +30,15 @@ impl std::error::Error for DiceError {
 }
 
 impl Dice {
+  pub const MINIMUM_ROLLS: u32 = 1;
+  pub const MINIMUM_SIDES: u32 = 2;
+
   pub fn new(rolls: u32, sides: u32) -> Result<Dice, Box<dyn Error>> {
-    if rolls < 1 {
+    if rolls < Dice::MINIMUM_ROLLS {
       return Err(Box::new(DiceError::InvalidRolls(rolls)));
     }
 
-    if sides < 1 {
+    if sides < Dice::MINIMUM_SIDES {
       return Err(Box::new(DiceError::InvalidSides(sides)));
     }
 
