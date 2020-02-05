@@ -1,5 +1,5 @@
 [package]
-name = "rpg_dice_rust"
+name = "rpg-dice-rust"
 version = "0.1.0"
 authors = ["Devin Gunay <devingunay@gmail.com>"]
 edition = "2018"
