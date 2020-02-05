@@ -46,14 +46,19 @@ impl Dice {
   }
 
   pub fn from_string(string: &String) -> Result<Dice, Box<dyn Error>> {
+    let (rolls, sides) = Dice::parse_rolls_and_sides(string);
+    return Dice::new(rolls, sides);
+  }
+
+  pub fn parse_rolls_and_sides(string: &String) -> (u32, u32) {
     // parse into rolls and sides, with regex validation
     lazy_static! {
       static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
     }
 
+    // Parse the captures as u32s.
     let captures = PATTERN.captures(string).unwrap();
 
-    // Parse the captures as u32s.
     let rolls = captures
       .get(1)
       .expect(format!("Failed to match number of rolls for {}", string).as_str())
@@ -67,7 +72,7 @@ impl Dice {
       .parse::<u32>()
       .unwrap();
 
-    return Dice::new(rolls, sides);
+    return (rolls, sides);
   }
 }
 
