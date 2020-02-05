@@ -1,3 +1,5 @@
+![Rust](https://github.com/dgunay/rpg-dice-rust/workflows/Rust/badge.svg)
+
 # RPG Dice Rust
 
 I used a command line dice roller as a way of learning how Perl's package
