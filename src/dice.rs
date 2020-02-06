@@ -1,13 +1,13 @@
 use regex::Regex;
-use std::error::Error;
 use std::fmt;
+use failure::Error;
 
 pub struct Dice {
   pub rolls: u32,
   pub sides: u32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Fail)]
 pub enum DiceError {
   InvalidSides(u32),
   InvalidRolls(u32),
@@ -22,24 +22,17 @@ impl fmt::Display for DiceError {
   }
 }
 
-impl std::error::Error for DiceError {
-  fn source(&self) -> Option<&(dyn Error + 'static)> {
-    // Generic error, underlying cause isn't tracked.
-    None
-  }
-}
-
 impl Dice {
   pub const MINIMUM_ROLLS: u32 = 1;
   pub const MINIMUM_SIDES: u32 = 2;
 
-  pub fn new(rolls: u32, sides: u32) -> Result<Dice, Box<dyn Error>> {
+  pub fn new(rolls: u32, sides: u32) -> Result<Dice, Error> {
     if rolls < Dice::MINIMUM_ROLLS {
-      return Err(Box::new(DiceError::InvalidRolls(rolls)));
+      return Err(DiceError::InvalidRolls(rolls).into());
     }
 
     if sides < Dice::MINIMUM_SIDES {
-      return Err(Box::new(DiceError::InvalidSides(sides)));
+      return Err(DiceError::InvalidSides(sides).into());
     }
 
     return Ok(Dice {
@@ -48,12 +41,12 @@ impl Dice {
     });
   }
 
-  pub fn from_string(string: &String) -> Result<Dice, Box<dyn Error>> {
-    let (rolls, sides) = Dice::parse_rolls_and_sides(string);
+  pub fn from_string(string: &String) -> Result<Dice, Error> {
+    let (rolls, sides) = Dice::parse_rolls_and_sides(string)?;
     return Dice::new(rolls, sides);
   }
 
-  pub fn parse_rolls_and_sides(string: &String) -> (u32, u32) {
+  pub fn parse_rolls_and_sides(string: &String) -> Result<(u32, u32), Error> {
     // parse into rolls and sides, with regex validation
     lazy_static! {
       static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
@@ -75,7 +68,7 @@ impl Dice {
       .parse::<u32>()
       .unwrap();
 
-    return (rolls, sides);
+    return Ok((rolls, sides));
   }
 }
 
