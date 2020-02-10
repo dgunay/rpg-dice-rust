@@ -33,3 +33,17 @@ Run a fuzzing target:
 ```rust
 rustup run nightly cargo fuzz run <target>
 ```
+
+## Building for Android/Termux
+
+You can cross-compile the project to run on Termux. Download the Android Native 
+Development Kit (NDK) and the appropriate Rust target, and run the command
+like this:
+
+```sh
+$ env CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=/path/to/ndk/android-ndk-r21/toolc
+hains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang cargo build --target aarch64-linux-android
+```
+
+That example is for my phone (Galaxy Note 8), you may need a different Clang
+toolchain and target depending on your phone's CPU architecture.
