@@ -62,6 +62,7 @@ pub fn solve_dice_expression(
 
   // For every match on the Dice expression regex, roll it in-place.
   let rolled_expression = PATTERN.replace_all(&expression, |caps: &Captures| {
+    // FIXME: the unwrap here can cause a panic
     let diceroll_str = &caps.get(0).unwrap().as_str().to_string();
     match Dice::from_string(&diceroll_str) {
       Ok(dice) => {
