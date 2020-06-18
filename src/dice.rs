@@ -59,14 +59,12 @@ impl Dice {
       .get(1)
       .expect(format!("Failed to match number of rolls for {}", string).as_str())
       .as_str()
-      .parse::<u32>()
-      .unwrap();
+      .parse::<u32>()?;
     let sides = captures
       .get(2)
       .expect(format!("Failed to match number of sides for {}", string).as_str())
       .as_str()
-      .parse::<u32>()
-      .unwrap();
+      .parse::<u32>()?;
 
     return Ok((rolls, sides));
   }
