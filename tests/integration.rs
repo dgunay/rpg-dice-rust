@@ -8,7 +8,7 @@ const TEST_SEED: u64 = 42;
 fn solve_dice_expression_can_do_basic_math() {
     assert_eq!(
         4,
-        solve_dice_expression(String::from("2 + 2"), None).unwrap()
+        solve_dice_expression(&String::from("2 + 2"), None).unwrap()
     );
 }
 
@@ -17,8 +17,8 @@ fn seeded_rolls_are_deterministic() {
     let seed = Some(TEST_SEED);
     let rolls = ["2d6", "1d20", "2d8", "9d4", "1d12"];
     for s in &rolls {
-        let a = solve_dice_expression(s.to_string(), seed);
-        let b = solve_dice_expression(s.to_string(), seed);
+        let a = solve_dice_expression(&s.to_string(), seed);
+        let b = solve_dice_expression(&s.to_string(), seed);
 
         assert_eq!(a.unwrap(), b.unwrap());
     }
@@ -26,7 +26,7 @@ fn seeded_rolls_are_deterministic() {
 
 #[test]
 fn multiple_rolls() {
-    let a = solve_dice_expression("1d6 + 1d6".to_string(), None).unwrap();
+    let a = solve_dice_expression(&"1d6 + 1d6".to_string(), None).unwrap();
     assert!(a >= 2 && a <= 12);
 }
 
@@ -39,6 +39,6 @@ fn fuzz_artifacts_dont_cause_crashes_anymore() {
         "!-0d11111111111d//00,",
     ];
     for s in &inputs {
-        assert!(solve_dice_expression(s.to_string(), None).is_err());
+        assert!(solve_dice_expression(&s.to_string(), None).is_err());
     }
 }

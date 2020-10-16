@@ -1,8 +1,11 @@
 [package]
 name = "rpg-dice-rust"
+description = "An RPG dice rolling library and command line app."
 version = "1.0.0"
 authors = ["Devin Gunay <devingunay@gmail.com>"]
 edition = "2018"
+license_file = "LICENSE.md"
+repository = "https://github.com/dgunay/rpg-dice-rust"
 
 [lib]
 name = "dicelib"
