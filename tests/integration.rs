@@ -32,7 +32,7 @@ fn multiple_rolls() {
 
 #[test]
 fn fuzz_artifacts_dont_cause_crashes_anymore() {
-    let inputs = [
+    let inputs = vec![
         "6d0%",
         "994d01$",
         "2222225d22225d||?",
