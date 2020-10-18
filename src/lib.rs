@@ -1,9 +1,11 @@
 //! The RPG Dice Rust crate. A combination command line dice roller and library
 //! for evaluating dice roll expressions.
 
-// Enables a lot of annoying warnings.
+// Enables a lot of annoying warnings to keep us honest.
 #![warn(clippy::all, clippy::pedantic, clippy::nursery, clippy::cargo)]
-// Errors on missing docs.
+// Warnings we sincerely don't care about.
+#![allow(clippy::module_name_repetitions)]
+// Won't compile if there are missing docs.
 #![deny(missing_docs)]
 
 #[macro_use]
@@ -31,7 +33,7 @@ use std::borrow::Cow;
 /// # Errors
 /// - Integer overflow from huge dice rolls.
 ///
-pub fn solve_dice_expression(expression: &String, random_seed: Option<u64>) -> Result<i64> {
+pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Result<i64> {
     lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"(\d+)d(\d+)").expect("Problem compiling regex");
     }

@@ -4,7 +4,7 @@ use anyhow::Result;
 use rand::{prelude::Rng, RngCore};
 use regex::Regex;
 
-use crate::error::{DiceError, DiceRollError};
+use crate::error::{Error, RollError};
 
 /// A dice roll expressed in RPG term e.g. 3d6 means "roll a 6-sided die 3 times".
 pub struct DiceRoll {
@@ -30,11 +30,11 @@ impl DiceRoll {
     /// - `sides` is less than 2
     pub fn new(rolls: u32, sides: u32) -> Result<Self> {
         if rolls < Self::MINIMUM_ROLLS {
-            return Err(DiceError::InvalidRolls(rolls).into());
+            return Err(Error::InvalidRolls(rolls).into());
         }
 
         if sides < Self::MINIMUM_SIDES {
-            return Err(DiceError::InvalidSides(sides).into());
+            return Err(Error::InvalidSides(sides).into());
         }
 
         Ok(Self { rolls, sides })
@@ -49,7 +49,7 @@ impl DiceRoll {
     /// # Errors
     /// - See `parse_rolls_and_sides()`
     // TODO: use &str instead of &String
-    pub fn from_string(string: &String) -> Result<Self> {
+    pub fn from_string(string: &str) -> Result<Self> {
         let (rolls, sides) = Self::parse_rolls_and_sides(string)?;
         Self::new(rolls, sides)
     }
@@ -64,7 +64,7 @@ impl DiceRoll {
     /// # Errors
     /// - If rolls or sides cannot be matched (expression is malformed)
     /// - If the matched rolls and sides are not parseable as `u32`
-    pub fn parse_rolls_and_sides(string: &String) -> Result<(u32, u32)> {
+    pub fn parse_rolls_and_sides(string: &str) -> Result<(u32, u32)> {
         // parse into rolls and sides, with regex validation
         lazy_static! {
             static ref PATTERN: Regex = Regex::new(r"^(\d+)d(\d+)$").unwrap();
@@ -73,18 +73,18 @@ impl DiceRoll {
         // Parse the captures as u32s.
         let captures = PATTERN
             .captures(string)
-            .ok_or_else(|| DiceError::InvalidExpression(string.clone()))?;
+            .ok_or_else(|| Error::InvalidExpression(string.to_string()))?;
 
         // The error handling here is more of a formality because if we got this
         // far, we probably matched two ints.
         let rolls = captures
             .get(1)
-            .ok_or_else(|| DiceError::FailedToParseRolls(string.clone()))?
+            .ok_or_else(|| Error::FailedToParseRolls(string.to_string()))?
             .as_str()
             .parse::<u32>()?;
         let sides = captures
             .get(2)
-            .ok_or_else(|| DiceError::FailedToParseSides(string.clone()))?
+            .ok_or_else(|| Error::FailedToParseSides(string.to_string()))?
             .as_str()
             .parse::<u32>()?;
 
@@ -106,7 +106,7 @@ impl DiceRoll {
             let roll = rng.gen_range(1, self.sides + 1);
             result = result
                 .checked_add(roll)
-                .ok_or(DiceRollError::IntegerOverFlow(result, roll))?;
+                .ok_or(RollError::IntegerOverFlow(result, roll))?;
         }
 
         Ok(result)

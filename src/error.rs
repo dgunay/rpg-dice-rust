@@ -5,7 +5,7 @@ use thiserror::Error;
 
 /// Things that can go wrong when rolling dice.
 #[derive(Debug, Clone, Error)]
-pub enum DiceRollError {
+pub enum RollError {
     /// Attempted to add two integers which would overflow (usually because the
     /// dice roll is too big)
     #[error("Adding integers {0} and {1} would overflow")]
@@ -14,7 +14,7 @@ pub enum DiceRollError {
 
 /// Things that can go wrong when instantiating a Dice
 #[derive(Debug, Clone, Error)]
-pub enum DiceError {
+pub enum Error {
     /// Attempted to create a DiceRoll with too few sides.
     #[error(
         "'{0}' is an invalid number of sides for a Dice (must be at least {})",

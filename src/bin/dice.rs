@@ -5,6 +5,11 @@ use dicelib::solve_dice_expression;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
+#[structopt(
+    name = "dice",
+    about = "A command line dice roller.",
+    author = "Devin Gunay <devingunay@gmail.com>"
+)]
 struct Cli {
     /// The dice expression (such as '1d6 + 5')
     #[structopt(required = true, min_values = 1)]
