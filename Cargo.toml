@@ -1,8 +1,13 @@
 [package]
 name = "rpg-dice-rust"
-version = "1.0.0"
+description = "An RPG dice rolling library and command line app."
+version = "1.1.0"
 authors = ["Devin Gunay <devingunay@gmail.com>"]
 edition = "2018"
+license_file = "LICENSE.md"
+repository = "https://github.com/dgunay/rpg-dice-rust"
+keywords = ["RPG", "Dice", "Tabletop", "Roll"]
+categories = ["Games"]
 
 [lib]
 name = "dicelib"
@@ -20,4 +25,5 @@ rand =  { version = "0.7.3", features = ["small_rng"] }
 regex = "1"
 lazy_static = "1.4.0"
 evalexpr = "5.0.5"
-failure = "0.1.6"
+anyhow = "1.0"
+thiserror = "1.0"

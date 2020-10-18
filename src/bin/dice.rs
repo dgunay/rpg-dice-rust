@@ -5,12 +5,17 @@ use dicelib::solve_dice_expression;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
+#[structopt(
+    name = "dice",
+    about = "A command line dice roller.",
+    author = "Devin Gunay <devingunay@gmail.com>"
+)]
 struct Cli {
-    // The dice expression (such as '1d6 + 5')
+    /// The dice expression (such as '1d6 + 5')
     #[structopt(required = true, min_values = 1)]
     expression: Vec<String>,
 
-    // An optional random seed for repeatable results.
+    /// An optional random seed for repeatable results.
     #[structopt(short, long)]
     random_seed: Option<u64>,
 }
@@ -24,7 +29,7 @@ fn main() {
     // Mash the Strings together into one
     let combined_expression = expression.join("");
 
-    let result = solve_dice_expression(combined_expression, args.random_seed);
+    let result = solve_dice_expression(&combined_expression, args.random_seed);
     match result {
         Ok(out) => println!("{}", out),
         Err(e) => {
