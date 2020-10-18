@@ -7,7 +7,7 @@ edition = "2018"
 license-file = "LICENSE.md"
 repository = "https://github.com/dgunay/rpg-dice-rust"
 keywords = ["RPG", "Dice", "Tabletop", "Roll"]
-categories = ["Games"]
+categories = ["games"]
 
 [lib]
 name = "dicelib"
