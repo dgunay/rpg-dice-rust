@@ -1,7 +1,7 @@
 //! Represents a Dice.
 
 use anyhow::Result;
-use rand::prelude::{Rng, SmallRng};
+use rand::{prelude::Rng, RngCore};
 use regex::Regex;
 
 use crate::error::{DiceError, DiceRollError};
@@ -96,7 +96,7 @@ impl DiceRoll {
     ///
     /// # Errors
     /// - `IntegerOverFlow` if the rolls and sides are very, very big numbers.
-    pub fn roll(&self, rng: &mut SmallRng) -> Result<u32> {
+    pub fn roll(&self, rng: &mut impl RngCore) -> Result<u32> {
         let mut result: u32 = 0;
 
         // TODO: experiment with a bigint implementation, benchmark against native
