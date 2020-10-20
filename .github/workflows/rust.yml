@@ -5,14 +5,29 @@ on: [push, pull_request]
 jobs:
   build:
 
+    name: Rust ${{ matrix.rust }}
     runs-on: ubuntu-latest
-    
-    # TODO: add toolchains and let it fail on nightly
+
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - nightly
+
     steps:
     - uses: actions/checkout@v2
+    - name: Setup
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: ${{ matrix.rust }}
+        override: true
     - name: Build
       run: cargo build --verbose
+      continue-on-error: ${{ matrix.rust == 'nightly' }}
     - name: Clippy
       run: cargo 
+      continue-on-error: ${{ matrix.rust == 'nightly' }}
     - name: Run tests
       run: cargo test --verbose
+      continue-on-error: ${{ matrix.rust == 'nightly' }}
