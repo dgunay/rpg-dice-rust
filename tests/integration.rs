@@ -27,7 +27,7 @@ fn seeded_rolls_are_deterministic() {
 #[test]
 fn multiple_rolls() {
     let a = solve_dice_expression(&"1d6 + 1d6".to_string(), None).unwrap();
-    assert!(a >= 2 && a <= 12);
+    assert!((2..=12).contains(&a))
 }
 
 #[test]
