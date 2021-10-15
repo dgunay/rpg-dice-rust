@@ -33,6 +33,8 @@ use std::borrow::Cow;
 /// # Errors
 /// - Integer overflow from huge dice rolls.
 ///
+/// # Panics
+/// - Will panic if invalid `DiceRoll` expression given
 pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Result<i64> {
     lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"(\d+)d(\d+)").expect("Problem compiling regex");

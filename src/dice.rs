@@ -116,10 +116,14 @@ impl DiceRoll {
 #[cfg(test)]
 mod dice_unit_tests {
     use super::DiceRoll;
+    use rand::rngs::SmallRng;
+    use rand::SeedableRng;
 
     #[test]
     fn dice_from_string() {
-        let _d = DiceRoll::from_string(&"1d6".to_string());
-        assert!(true);
+        let mut rng = SmallRng::from_entropy();
+        let d = DiceRoll::from_string(&"1d6".to_string());
+        let r = d.unwrap().roll(&mut rng).unwrap();
+        assert!((1..=6).contains(&r));
     }
 }
