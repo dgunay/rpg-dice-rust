@@ -21,6 +21,15 @@ use rand::{rngs::SmallRng, SeedableRng};
 use regex::{Captures, Regex};
 use std::borrow::Cow;
 
+/// A struct representing the result of a dice roll.
+pub struct DiceResult {
+    /// The final result of the dice roll.
+    pub result: i64,
+
+    /// The expression after rolling all the dice.
+    pub rolled_expression: String,
+}
+
 /// Solves a dice expression string by rolling each dice in-place and then
 /// evaluating the resulting arithmetic expression.
 ///
@@ -35,7 +44,7 @@ use std::borrow::Cow;
 ///
 /// # Panics
 /// - Will panic if invalid `DiceRoll` expression given
-pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Result<i64> {
+pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Result<DiceResult> {
     lazy_static! {
         static ref PATTERN: Regex = Regex::new(r"(\d+)d(\d+)").expect("Problem compiling regex");
     }
@@ -73,6 +82,9 @@ pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Resu
     } else {
         // Calculate the result
         let result = eval(&rolled_expression)?.as_int()?;
-        Ok(result)
+        Ok(DiceResult {
+            result,
+            rolled_expression: rolled_expression.to_string(),
+        })
     }
 }

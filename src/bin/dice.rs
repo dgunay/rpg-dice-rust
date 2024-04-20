@@ -18,6 +18,10 @@ struct Cli {
     /// An optional random seed for repeatable results.
     #[structopt(short, long)]
     random_seed: Option<u64>,
+
+    /// If set, the expression after rolling the dice will be printed.
+    #[structopt(short, long)]
+    verbose: bool,
 }
 
 // fn main() -> Result<(), Box<dyn Error>> {
@@ -31,7 +35,14 @@ fn main() {
 
     let result = solve_dice_expression(&combined_expression, args.random_seed);
     match result {
-        Ok(out) => println!("{}", out),
+        Ok(out) => {
+            if args.verbose {
+                println!("Before: {}", combined_expression);
+                println!("After: {}", out.rolled_expression);
+            }
+
+            println!("{}", out.result);
+        }
         Err(e) => {
             println!("Error: {}", e);
             std::process::exit(1);
