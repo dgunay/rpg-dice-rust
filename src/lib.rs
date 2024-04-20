@@ -41,10 +41,9 @@ pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Resu
     }
 
     // Initialize our RNG
-    let mut rng = match random_seed {
-        Some(inner) => SmallRng::seed_from_u64(inner),
-        None => SmallRng::from_entropy(),
-    };
+    let mut rng = random_seed.map_or_else(SmallRng::from_entropy, |inner| {
+        SmallRng::seed_from_u64(inner)
+    });
 
     // In order to bubble up errors from Regex::replace, we capture this Option
     // to smuggle it out.
@@ -56,7 +55,7 @@ pub fn solve_dice_expression(expression: &str, random_seed: Option<u64>) -> Resu
         let diceroll_str = &caps.get(0).unwrap().as_str().to_string();
         match DiceRoll::from_string(diceroll_str) {
             Ok(dice) => match dice.roll(&mut rng) {
-                Ok(roll_result) => Cow::Owned(format!("{}", roll_result)),
+                Ok(roll_result) => Cow::Owned(roll_result.to_string()),
                 Err(e) => {
                     error = Some(e.context(diceroll_str.clone()));
                     Cow::Borrowed("")
